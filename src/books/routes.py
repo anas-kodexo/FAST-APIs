@@ -1,4 +1,5 @@
-from fastapi import APIRouter, status, Depends , Response
+from fastapi import APIRouter, status, Depends 
+from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException
 from src.books.schemas import Book_model, UpdateBookModel, BookCreateModel
 from src.db.main import get_session
@@ -57,15 +58,11 @@ async def update_book(
         )
 
 
-@book_router.delete("/delete-book/{book_uid}", status_code=status.HTTP_204_NO_CONTENT)
+@book_router.delete("/delete-book/{book_uid}", status_code=status.HTTP_200_OK)
 async def delete_book(book_uid: str, session: AsyncSession = Depends(get_session)):
-
     book_to_delete = await book_service.delete_book(book_uid, session)
-
-    if book_to_delete is not True:
-         print("the book has been deleted")
-         return Response(status_code=204)  
-    else:
+    if book_to_delete is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
         )
+    return JSONResponse(content={"message": f"Book with UID {book_uid} deleted successfully"})

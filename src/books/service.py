@@ -2,6 +2,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from .schemas import BookCreateModel, UpdateBookModel
 from sqlmodel import select, desc
 from .models import Book_model
+from fastapi.responses import JSONResponse
 
 
 class BookService:
@@ -60,8 +61,13 @@ class BookService:
             await session.delete(book_to_delete)
 
             await session.commit()
-            
-            return {}
 
+            return {
+                JSONResponse(
+                    content={
+                        "message": f"Book with UID {book_uid} deleted successfully"
+                    }
+                )
+            }
         else:
             return None
