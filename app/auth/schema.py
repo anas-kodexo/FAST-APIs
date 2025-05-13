@@ -17,6 +17,7 @@ class UserLogin(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+    refresh_token: str
 
 
 class UserRead(BaseModel):
@@ -27,3 +28,7 @@ class UserRead(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str

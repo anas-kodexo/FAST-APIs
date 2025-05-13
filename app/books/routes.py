@@ -1,4 +1,3 @@
-# app/books/routes.py
 from fastapi import APIRouter, Depends, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 from app.db.main import get_session
