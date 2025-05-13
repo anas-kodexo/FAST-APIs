@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, DateTime
+from sqlalchemy import Column, String, DateTime, Enum
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import declarative_base
 import uuid
@@ -13,4 +13,8 @@ class User(Base):
     username = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False)
     hashed_password = Column(String, nullable=False)
+    role = Column(
+        Enum("admin", "customer", "other", name="role_enum"), default="customer"
+    )
     created_at = Column(DateTime, default=datetime.utcnow)
+

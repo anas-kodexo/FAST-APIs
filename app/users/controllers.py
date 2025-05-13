@@ -1,6 +1,7 @@
 from app.users.services import UserService
 from sqlmodel.ext.asyncio.session import AsyncSession
 from fastapi import HTTPException, status
+from .schema import UserUpdate
 
 
 class UserController:
@@ -19,3 +20,9 @@ class UserController:
                 detail=f"User with username '{username}' does not exist",
             )
         return user
+
+    async def update_user(self, username: str, data: UserUpdate, session: AsyncSession):
+        return await self.service.update_user(username, data, session)
+
+    async def delete_user(self, username: str, session: AsyncSession):
+        return await self.service.delete_user(username, session)
