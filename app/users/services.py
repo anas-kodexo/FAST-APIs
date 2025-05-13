@@ -3,6 +3,7 @@ from app.auth.models import User
 from sqlalchemy import select
 from app.users.schema import UserOut, UserUpdate
 from fastapi import HTTPException
+from sqlalchemy.exc import SQLAlchemyError  
 
 class UserService:
 
@@ -21,32 +22,36 @@ class UserService:
             return UserOut.from_orm(user)
         return None
 
-    async def update_user(self, username: str, data: UserUpdate, session: AsyncSession):
-        from app.auth.models import User  # to avoid circular import
+    async def delete_user_by_email(self, db: AsyncSession, email: str):
+        try:
+            result = await db.execute(select(User).where(User.email == email))
+            user = result.scalars().first()
+            if not user:
+                return False
+            await db.delete(user)
+            await db.commit()
+            return True
+        except SQLAlchemyError as e:
+            raise HTTPException(
+                status_code=500, detail=f"Database error while deleting user: {str(e)}"
+            )
 
-        statement = select(User).where(User.username == username)
-        result = await session.exec(statement)
-        user = result.first()
-        if not user:
-            raise HTTPException(status_code=404, detail="User not found")
-
-        for key, value in data.model_dump(exclude_unset=True).items():
-            setattr(user, key, value)
-
-        session.add(user)
-        await session.commit()
-        await session.refresh(user)
-        return user
-
-    async def delete_user(self, username: str, session: AsyncSession):
-        from app.auth.models import User
-
-        statement = select(User).where(User.username == username)
-        result = await session.exec(statement)
-        user = result.first()
-        if not user:
-            raise HTTPException(status_code=404, detail="User not found")
-
-        await session.delete(user)
-        await session.commit()
-        return {"detail": f"User '{username}' deleted successfully"}
+    async def update_user_by_email(
+        self, db: AsyncSession, email: str, user_update: UserUpdate
+    ):
+        try:
+            result = await db.execute(select(User).where(User.email == email))
+            user = result.scalars().first()
+            if not user:
+                return False
+            update_data = user_update.dict(exclude_unset=True)
+            for key, value in update_data.items():
+                setattr(user, key, value)
+            await db.commit()
+            await db.refresh(user)
+            return user
+        except SQLAlchemyError as e:
+            await db.rollback()
+            raise HTTPException(
+                status_code=500, detail=f"Database error while updating user: {str(e)}"
+            )

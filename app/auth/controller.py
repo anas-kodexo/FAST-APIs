@@ -17,10 +17,17 @@ class AuthController:
         if not user:
             return None
         access_token = create_access_token(
-            data={"sub": str(user.uid)}, expires_delta=timedelta(minutes=30)
+            data={
+                "sub": str(
+                    user.username
+                ),  # or user.uid, just make sure you're consistent
+                "role": user.role.value,  # Assuming `user.role` is an Enum
+            },
+            expires_delta=timedelta(minutes=30),
         )
         refresh_token = create_refresh_token(
-            {"sub": user["name"]}, expires_delta=timedelta(days=7)
+            data={"sub": str(user.username), "role": user.role.value},
+            expires_delta=timedelta(days=7),
         )
         return {
             "access_token": access_token,

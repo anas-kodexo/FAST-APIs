@@ -21,8 +21,28 @@ class UserController:
             )
         return user
 
-    async def update_user(self, username: str, data: UserUpdate, session: AsyncSession):
-        return await self.service.update_user(username, data, session)
+    async def delete_user_by_email(self, db, email: str):
+        try:
+            success = await self.service.delete_user_by_email(db, email)
+            if not success:
+                raise HTTPException(
+                    status_code=404, detail=f"User with email '{email}' not found"
+                )
+            return {"message": f"User with email '{email}' deleted successfully."}
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, detail="An error occurred while deleting the user"
+            )
 
-    async def delete_user(self, username: str, session: AsyncSession):
-        return await self.service.delete_user(username, session)
+    async def update_user_by_email(self, db, email: str, user_update: UserUpdate):
+        try:
+            user = await self.service.update_user_by_email(db, email, user_update)
+            if not user:
+                raise HTTPException(
+                    status_code=404, detail=f"User with email '{email}' not found"
+                )
+            return user
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, detail="An error occurred while updating the user"
+            )
