@@ -1,12 +1,8 @@
-from pydantic import BaseModel,EmailStr
+from pydantic import BaseModel, EmailStr
 import uuid
 from typing import Optional
 
-class UserUpdate(BaseModel):
-    username: Optional[str] = None
-    email: Optional[EmailStr] = None
-    
-    
+
 class UserOut(BaseModel):
     uid: uuid.UUID
     username: str
@@ -16,3 +12,6 @@ class UserOut(BaseModel):
         from_attributes = True
 
 
+class UserUpdate(BaseModel):
+    username: Optional[str] = None
+    email: Optional[EmailStr] = None

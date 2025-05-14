@@ -2,6 +2,8 @@ from app.users.services import UserService
 from sqlmodel.ext.asyncio.session import AsyncSession
 from fastapi import HTTPException, status
 from .schema import UserUpdate
+from sqlmodel import select
+from app.auth.models import User
 
 
 class UserController:
@@ -21,28 +23,19 @@ class UserController:
             )
         return user
 
-    async def delete_user_by_email(self, db, email: str):
-        try:
-            success = await self.service.delete_user_by_email(db, email)
-            if not success:
-                raise HTTPException(
-                    status_code=404, detail=f"User with email '{email}' not found"
-                )
-            return {"message": f"User with email '{email}' deleted successfully."}
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail="An error occurred while deleting the user"
-            )
+    async def delete_user_by_email(self, email: str, db: AsyncSession):
+        print(f"inside the del controller")
+        return await self.service.delete_user_by_email(email, db)
 
-    async def update_user_by_email(self, db, email: str, user_update: UserUpdate):
-        try:
-            user = await self.service.update_user_by_email(db, email, user_update)
-            if not user:
-                raise HTTPException(
-                    status_code=404, detail=f"User with email '{email}' not found"
-                )
-            return user
-        except Exception as e:
+    async def update_user_by_email(
+        self, email: str, user_update: UserUpdate, session: AsyncSession
+    ):
+        updated_user = await self.service.update_user_by_email(
+            email, user_update, session
+        )
+        if not updated_user:
             raise HTTPException(
-                status_code=500, detail="An error occurred while updating the user"
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"User with email '{email}' does not exist",
             )
+        return updated_user

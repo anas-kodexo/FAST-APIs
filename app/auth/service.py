@@ -1,4 +1,4 @@
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.future import select
 from app.auth.models import User
 from app.auth.utils import get_password_hash, verify_password
