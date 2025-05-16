@@ -23,7 +23,8 @@ class UserService:
         return None
 
     async def delete_user_by_email(self, email: str, session: AsyncSession):
-        user = await session.execute(select(User).filter_by(email=email)).scalar_one_or_none()
+        result = await session.execute(select(User).filter_by(email=email))
+        user = result.scalar_one_or_none()
 
         print(f"Searching for user with email: {email}")
         if not user:

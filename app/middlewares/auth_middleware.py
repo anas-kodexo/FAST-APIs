@@ -24,13 +24,12 @@ async def get_current_user(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
         )
-
-    result = await db.execute(select(User).where(User.username == username))
+    result = await db.execute(select(User).where(User.email == username))
     user = result.scalars().first()
 
     if user is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Admin user not found"
         )
 
     return user
@@ -45,5 +44,5 @@ async def admin_only(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only admin users can perform this action",
         )
-        
+
     return current_user
