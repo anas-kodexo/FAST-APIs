@@ -1,4 +1,3 @@
-# app/books/service.py
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlmodel import select, desc
 from .models import Book_model

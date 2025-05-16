@@ -1,4 +1,3 @@
-# app/books/controller.py
 from fastapi import status, HTTPException
 from fastapi.responses import JSONResponse
 from sqlmodel.ext.asyncio.session import AsyncSession
